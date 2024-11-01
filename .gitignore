@@ -1,0 +1,46 @@
+.idea/
+*.iml
+data/*.txt
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+
+# Ignore distribution / packaging files
+dist/
+build/
+*.egg
+*.whl
+
+# Ignore test coverage reports
+.coverage
+*.cover
+.cache
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore logs
+*.log
+
+# Ignore environment variable files
+.env
+*.env
+
+# Ignore sensitive information
+secret_key.txt
+credentials.json
+
+# Ignore other IDE files
+.vscode/
+*.sublime-project
+*.sublime-workspace
