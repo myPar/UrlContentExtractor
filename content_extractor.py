@@ -15,7 +15,7 @@ class UrlContentExtractor:
 
     def _filter_similar_urls(self):
         def remove_ident(url):
-            idx = url.find('#item')
+            idx = url.find('#')
             if idx != -1:
                 return url[:idx]
             return url
@@ -33,11 +33,11 @@ class UrlContentExtractor:
                 resp = httpx.get(url)
                 resp.raise_for_status()
                 soup = BeautifulSoup(resp.text, 'html.parser')
-                extracted_text = re.sub(r'[\n\r\t]+', '\n', soup.get_text())
+                extracted_text = re.sub(r'[\n\r\t]+', '\n', soup.get_text()).replace('\u00A0', ' ')
 
                 if len(extracted_text.replace(' ','')) < self._min_characters_count:
                     continue
-                with open(os.path.join(self._save_dir, re.sub(f'https?://','', url).replace('/','').replace('.','')) + ".txt", 'w', encoding='utf-8') as f:
+                with open(os.path.join(self._save_dir, re.sub(f'https?://','', url).replace('/','').replace('.','').replace(':', '_')) + ".txt", 'w', encoding='utf-8') as f:
                     f.write(extracted_text)
             except httpx.HTTPStatusError as e:
                 if log:
