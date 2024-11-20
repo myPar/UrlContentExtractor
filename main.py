@@ -1,4 +1,6 @@
 import argparse
+import os
+
 from content_extractor import UrlContentExtractor
 from urls_extractor import UrlExtractor
 import sys
@@ -22,6 +24,11 @@ def validate_args(args):
         raise Exception(f'invalid depth arg={args.d}, should be a positive value')
     if args.max_urls < 1:
         raise Exception(f'invalid max_urls arg={args.max_urls}, should be a positive value')
+    if args.exclude_dir is not None:
+        try:
+            os.listdir(args.exclude_dir)
+        except Exception:
+            raise Exception(f'invalid exclude directory={args.exclude_idr}')
 
 
 def main():
@@ -38,6 +45,9 @@ def main():
                         help='directory to store the generated documents')
     parser.add_argument('--log', type=bool, required=False, default=False,
                         help='enable logging or not')
+    parser.add_argument('--exclude_dir', type=str, required=False, default=None,
+                        help="directory with files which was already been processed, "
+                             "so urls corresponding to them are not been parsed")
     parser.add_argument('--ignored_domens',
                         nargs="*",
                         required=False,
@@ -59,7 +69,7 @@ def main():
                                   )
     urls_extractor.set_max_urls(args.max_urls)
     urls = urls_extractor.extract(args.base_url, log=args.log)
-    content_extractor = UrlContentExtractor(urls=urls, save=True, save_dir=args.output)
+    content_extractor = UrlContentExtractor(urls=urls, save=True, save_dir=args.output, exclude_dir=args.exclude_dir)
     content_extractor.extract_content(log=args.log)
 
 
