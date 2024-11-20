@@ -28,7 +28,7 @@ def validate_args(args):
         try:
             os.listdir(args.exclude_dir)
         except Exception:
-            raise Exception(f'invalid exclude directory={args.exclude_idr}')
+            raise Exception(f'invalid exclude directory={args.exclude_dir}')
 
 
 def main():
