@@ -6,15 +6,16 @@ import re
 import sys
 from http import HTTPStatus
 from status import redirects
+from typing import List
 
 
 class UrlContentExtractor:
-    def __init__(self, urls, save: bool=True, save_dir: str='data/', exclude_dir: str=None):
+    def __init__(self, urls, save: bool=True, save_dir: str='data/', exclude_files=None):
         self._urls = urls
         self._save = save
         self._save_dir = save_dir
         self._min_characters_count = 300
-        self._exclude_files = None if exclude_dir is None else set(os.listdir(exclude_dir))
+        self._exclude_files = None if exclude_files is None else set(exclude_files)
 
     def _create_file_name(self, url: str):
         return re.sub(f'https?://', '', url).replace('/', '').replace('.', '').replace(':', '_') + ".txt"
