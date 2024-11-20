@@ -5,6 +5,8 @@ import httpx
 import re
 import sys
 from http import HTTPStatus
+from status import redirects
+
 
 class UrlContentExtractor:
     def __init__(self, urls, save: bool=True, save_dir: str='data/'):
@@ -31,11 +33,16 @@ class UrlContentExtractor:
         for url in urls_to_extract:
             try:
                 resp = httpx.get(url)
-                if resp.status_code == HTTPStatus.MOVED_PERMANENTLY:
+                if resp.status_code in redirects:
                     redirected_url = resp.headers['Location']
                     resp = httpx.get(redirected_url)
                 resp.raise_for_status()
-                soup = BeautifulSoup(resp.text, 'html.parser')
+                try:
+                    soup = BeautifulSoup(resp.text, 'html.parser')
+                except Exception as e:
+                    if log:
+                        print(f"can't parse text from url={url}: {str(e)}")
+                    continue
                 extracted_text = re.sub(r'[\n\r\t]+', '\n', soup.get_text()).replace('\u00A0', ' ')
 
                 if len(extracted_text.replace(' ','')) < self._min_characters_count:
