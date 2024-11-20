@@ -4,7 +4,7 @@ import os
 import httpx
 import re
 import sys
-
+from http import HTTPStatus
 
 class UrlContentExtractor:
     def __init__(self, urls, save: bool=True, save_dir: str='data/'):
@@ -31,6 +31,9 @@ class UrlContentExtractor:
         for url in urls_to_extract:
             try:
                 resp = httpx.get(url)
+                if resp.status_code == HTTPStatus.MOVED_PERMANENTLY:
+                    redirected_url = resp.headers['Location']
+                    resp = httpx.get(redirected_url)
                 resp.raise_for_status()
                 soup = BeautifulSoup(resp.text, 'html.parser')
                 extracted_text = re.sub(r'[\n\r\t]+', '\n', soup.get_text()).replace('\u00A0', ' ')

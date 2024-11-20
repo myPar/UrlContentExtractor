@@ -3,6 +3,7 @@ import re
 from typing import List
 import sys
 from urllib.parse import unquote, urljoin
+from http import HTTPStatus
 
 class UrlExtractor:
     def __init__(self, max_depth:int=2, reject_http:bool=False, ignored_domens: List[str]=None, max_urls:int=None):
@@ -21,6 +22,9 @@ class UrlExtractor:
         result = []
         try:
             response = httpx.get(url)
+            if response.status_code == HTTPStatus.MOVED_PERMANENTLY:
+                redirected_url = response.headers['Location']
+                response = httpx.get(redirected_url)
             response.raise_for_status()
         except httpx.HTTPStatusError as e:
             if self.log:
