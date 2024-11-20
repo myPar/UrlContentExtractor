@@ -34,10 +34,11 @@ class UrlExtractor:
             if self.log:
                 print(f"request error for url='{url}': {str(e)}", file=sys.stderr)
             return []
-        urls = re.findall(r'<.*href=".+">', response.text)
+        urls = re.findall(r'<.*href=".+">', response.text, re.I)
 
         for url in urls:
-            url_text = re.search(r'href="(.*?)"', url)[0].split('=')[-1].replace('"', '').strip()
+            url_text = re.search(r'href="(.*?)"', url, re.I)[0].split('=')[-1].replace('"', '').strip()
+
             result.append(url_text)
         return result
 
