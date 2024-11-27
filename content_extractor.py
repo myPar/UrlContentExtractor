@@ -7,6 +7,7 @@ import sys
 from http import HTTPStatus
 from status import redirects
 from typing import List
+import json
 
 
 class UrlContentExtractor:
@@ -16,6 +17,7 @@ class UrlContentExtractor:
         self._save_dir = save_dir
         self._min_characters_count = 300
         self._exclude_files = None if exclude_files is None else set(exclude_files)
+        self._url_dict = dict()
 
     def _create_file_name(self, url: str):
         return re.sub(f'https?://', '', url).replace('/', '').replace('.', '').replace(':', '_') + ".txt"
@@ -61,11 +63,22 @@ class UrlContentExtractor:
                     continue
                 with open(os.path.join(self._save_dir, res_file_name), 'w', encoding='utf-8') as f:
                     f.write(extracted_text)
+                    self._url_dict[res_file_name] = url
             except httpx.HTTPStatusError as e:
                 if log:
                     print(f"error response for url='{url}': status={e.response.status_code}; {repr(e)}",
                           file=sys.stderr)
             except httpx.RequestError as e:
                 if log:
-                    print(f"request error for url='{url}': {str(e)}", file=sys.stderr)
+                    print(f"request error for url='{url}': {repr(e)}", file=sys.stderr)
+            except Exception as e:
+                if log:
+                    print(f"another error occured: {repr(e)}")
             pbar.update(1)
+
+    def save_url_dict(self):
+        json_data = json.dumps(self._url_dict)
+
+        with open(os.path.join(self._save_dir, 'urls_dict.json'), 'w') as f:
+            f.write(json_data)
+

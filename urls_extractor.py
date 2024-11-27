@@ -1,3 +1,5 @@
+import json
+
 import httpx
 import re
 from typing import List
@@ -6,10 +8,12 @@ from urllib.parse import unquote, urljoin
 from status import redirects
 
 class UrlExtractor:
-    def __init__(self, max_depth:int=2, reject_http:bool=False, ignored_domens: List[str]=None, max_urls:int=None):
+    def __init__(self, max_depth:int=2, reject_http:bool=False, ignored_domens: List[str]=None,
+                 required_domens: List[str]=None, max_urls:int=None):
         self._max_depth = max_depth
         self._reject_http = reject_http
         self._ignored_domens = ignored_domens if ignored_domens is not None else []
+        self._required_domens = required_domens if required_domens is not None else []
         self._max_urls = max_urls if max_urls is not None and max_urls > 0 else None
         self._urls_count = 0
         self.log = False
@@ -58,13 +62,21 @@ class UrlExtractor:
         return self._max_urls is not None and self._urls_count >= self._max_urls
 
     def _filter_domens(self, result_urls):
-        def has_domen(item):
+        def has_ignored_domen(item):
             for domen in self._ignored_domens:
                 if domen in item:
                     return True
             return False
-        if len(self._ignored_domens) > 0:
-            return set(item for item in result_urls if not has_domen(item))
+
+        def has_required_domen(item):
+            if len(self._required_domens) == 0:
+                return True
+            for domen in self._required_domens:
+                if domen in item:
+                    return True
+            return False
+        if len(self._ignored_domens) > 0 or len(self._required_domens) > 0:
+            return set(item for item in result_urls if not has_ignored_domen(item) and has_required_domen(item))
         return result_urls
 
     def _filter_similar_urls(self, urls):

@@ -67,6 +67,11 @@ def main():
                         default=[],
                         help='urls with containing this domens will be ignored, \
                         additionally to default ignored domens')
+    parser.add_argument('--required_domens',
+                        nargs="*",
+                        required=False,
+                        default=[],
+                        help="urls without containing any of this domens will be ignored.")
     try:
         args = parser.parse_args()
         validate_args(args)
@@ -75,9 +80,11 @@ def main():
         parser.print_help()
         return
     ignored_domens = default_ignored_domens.union(set(args.ignored_domens))
+    required_domens = args.required_domens
     urls_extractor = UrlExtractor(max_depth=args.depth,
                                   reject_http=args.reject_http,
                                   ignored_domens=list(ignored_domens),
+                                  required_domens=required_domens,
                                   max_urls=args.max_urls
                                   )
     urls_extractor.set_max_urls(args.max_urls)
@@ -86,6 +93,7 @@ def main():
     exclude_files = get_excluded_files(args.exclude_dirs)
     content_extractor = UrlContentExtractor(urls=urls, save=True, save_dir=args.output, exclude_files=exclude_files)
     content_extractor.extract_content(log=args.log)
+    content_extractor.save_url_dict()   # save dict with <file_name: url> pairs
 
 
 if __name__ == '__main__':
