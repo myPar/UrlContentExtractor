@@ -1,7 +1,6 @@
 import argparse
+import asyncio
 import os
-
-from content_extractor import UrlContentExtractor
 from urls_extractor import UrlExtractor
 import sys
 from typing import List
@@ -16,7 +15,9 @@ default_ignored_domens = {'vk.com',
                           'youtu.be',
                           'ok.ru',
                           'apple.com',
-                          'alfabank.ru'}
+                          'alfabank.ru',
+                          'jpg',
+                          'png'}
 
 
 def validate_args(args):
@@ -41,7 +42,7 @@ def get_excluded_files(dirs: List[str]):
     return res
 
 
-def main():
+async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--base_url', type=str, required=True,
                         help='base url to start extracting content from')
@@ -81,20 +82,18 @@ def main():
         return
     ignored_domens = default_ignored_domens.union(set(args.ignored_domens))
     required_domens = args.required_domens
+    exclude_files = get_excluded_files(args.exclude_dirs)
     urls_extractor = UrlExtractor(max_depth=args.depth,
                                   reject_http=args.reject_http,
                                   ignored_domens=list(ignored_domens),
                                   required_domens=required_domens,
-                                  max_urls=args.max_urls
+                                  max_urls=args.max_urls,
+                                  exclude_files=exclude_files
                                   )
-    urls_extractor.set_max_urls(args.max_urls)
-    urls = urls_extractor.extract(args.base_url, log=args.log)
-
-    exclude_files = get_excluded_files(args.exclude_dirs)
-    content_extractor = UrlContentExtractor(urls=urls, save=True, save_dir=args.output, exclude_files=exclude_files)
-    content_extractor.extract_content(log=args.log)
-    content_extractor.save_url_dict()   # save dict with <file_name: url> pairs
+    urls = await urls_extractor.extract(args.base_url, log=args.log)
+    urls_extractor.save_url_dict()   # save dict with <file_name: url> pairs
 
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
+    
