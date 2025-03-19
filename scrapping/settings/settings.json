@@ -1,0 +1,35 @@
+{
+  "urls_policy":
+  {
+    "only_urls": false,
+    "add_urls": true,
+    "update_old_urls": false,
+    "urls_file_name": "urls.json"
+  },
+  "load_pdf": true,
+  "reject_http": false,
+  "medias": ["ppt", "pptx", "eps", "7z", "svg", "doc",
+             "docx", "rtf", "cdr", "png", "jpg", "pdf",
+             "xlsx", "ods", "dot", "exe", "xml", "csv",
+             "xls", "raw"
+            ],
+  "ignored_domens": ["vk.com",
+                     "t.me",
+                     "rutube.ru",
+                     "dzen.ru",
+                     "youtube.com",
+                     ".css",
+                     "zimbra.com",
+                     "youtu.be",
+                     "ok.ru",
+                     "apple.com",
+                     "alfabank.ru",
+                     "switch-lang"
+                    ],
+  "pipeline_settings": {
+    "use_pipeline": false,
+    "broker_host": "localhost",
+    "broker_port": 5672
+  },
+  "min_content_size": 100
+}

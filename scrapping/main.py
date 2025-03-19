@@ -1,23 +1,10 @@
 import argparse
 import asyncio
 import os
-from urls_extractor import UrlExtractor
+from urls_scrapper import UrlExtractor
 import sys
 from typing import List
-
-default_ignored_domens = {'vk.com',
-                          't.me',
-                          'rutube.ru',
-                          'dzen.ru',
-                          'youtube.com',
-                          '.css',
-                          'zimbra.com',
-                          'youtu.be',
-                          'ok.ru',
-                          'apple.com',
-                          'alfabank.ru',
-                          'jpg',
-                          'png'}
+from settings.settings import crawler_settings
 
 
 def validate_args(args):
@@ -42,6 +29,13 @@ def get_excluded_files(dirs: List[str]):
     return res
 
 
+def parse_bool_str(arg:str):
+    try:
+        return {'true': True, 'false': False}[arg.lower()]
+    except KeyError:
+        raise argparse.ArgumentTypeError(f'invalid bool literal: {arg}')
+
+
 async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--base_url', type=str, required=True,
@@ -50,11 +44,9 @@ async def main():
                         help='maximum count of urls to extract content from')
     parser.add_argument('--depth', type=int, default=2, required=False,
                         help="maximum depth of passage through child url's")
-    parser.add_argument('--reject_http', type=bool, required=False, default=False,
-                        help='weather http pages are rejected to be parsed or not')
     parser.add_argument('--output', type=str, default='data/', required=False,
                         help='directory to store the generated documents')
-    parser.add_argument('--log', type=bool, required=False, default=False,
+    parser.add_argument('--log', type=parse_bool_str, default=False,
                         help='enable logging or not')
     parser.add_argument('--exclude_dirs',
                         nargs="*",
@@ -73,6 +65,8 @@ async def main():
                         required=False,
                         default=[],
                         help="urls without containing any of this domens will be ignored.")
+    parser.add_argument('--use_pipeline', type=parse_bool_str, default=crawler_settings.pipeline_settings.use_pipeline,
+                        help='weather to use pipeline mode with message broker or not')
     try:
         args = parser.parse_args()
         validate_args(args)
@@ -80,18 +74,20 @@ async def main():
         print('Parse args exception: ' + repr(e), file=sys.stderr)
         parser.print_help()
         return
-    ignored_domens = default_ignored_domens.union(set(args.ignored_domens))
+    ignored_domens = set(crawler_settings.ignored_domens).union(set(args.ignored_domens))
     required_domens = args.required_domens
     exclude_files = get_excluded_files(args.exclude_dirs)
-    urls_extractor = UrlExtractor(max_depth=args.depth,
-                                  reject_http=args.reject_http,
+    urls_extractor = UrlExtractor(settings=crawler_settings,
+                                  max_depth=args.depth,
                                   ignored_domens=list(ignored_domens),
                                   required_domens=required_domens,
                                   max_urls=args.max_urls,
-                                  exclude_files=exclude_files
+                                  exclude_files=exclude_files,
+                                  save_dir=args.output,
+                                  use_pipeline=args.use_pipeline
                                   )
-    urls = await urls_extractor.extract(args.base_url, log=args.log)
-    urls_extractor.save_url_dict()   # save dict with <file_name: url> pairs
+    await urls_extractor.extract(args.base_url, log=args.log)
+    urls_extractor.save_meta_dict()   # save dict with <file_name: url> pairs
 
 
 if __name__ == '__main__':

@@ -1,0 +1,14 @@
+{
+    "model_path": "BAAI/bge-reranker-v2-m3",
+    "file_path": "",
+    "output": "",
+    "dir_path": "",
+    "lang": "ru",
+    "chunk_size": 250,
+    "delimiter":"\n\n\n\n",
+    "pipeline_settings": {
+      "use_pipeline": false,
+      "broker_host": "localhost",
+      "broker_port": 5672
+    }
+}

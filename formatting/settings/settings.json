@@ -1,0 +1,13 @@
+{
+  "model_path": "Qwen/Qwen2.5-1.5B-Instruct",
+  "file_path": "",
+  "output": "",
+  "dir_path": "",
+  "chunk_size": 8192,
+  "prompt_file": "prompts/prompt.json",
+  "pipeline_settings": {
+    "use_pipeline": false,
+    "broker_host": "localhost",
+    "broker_port": 5672
+  }
+}
