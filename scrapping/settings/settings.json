@@ -26,10 +26,20 @@
                      "alfabank.ru",
                      "switch-lang"
                     ],
+  "required_domens": [],
+  "exclude_dirs": ["output"],
   "pipeline_settings": {
     "use_pipeline": false,
     "broker_host": "localhost",
     "broker_port": 5672
   },
-  "min_content_size": 100
+  "min_content_size": 100,
+  "launch":
+  {
+    "base_url": "https://www.nsu.ru/n/",
+    "depth": 3,
+    "max_urls": 200,
+    "output": "output",
+    "log": true
+  }
 }

@@ -35,6 +35,8 @@ class BrokerAdapter:
         self.channel.basic_publish(exchange='', routing_key=self.produce_queue_name, body=message)
 
     def consume_messages(self, infer_callback):
+        if not self.init:
+            raise Exception('Broker Adapter is not initialized')        
         def consume_callback(ch, method, properties, body):
             try:
                 msg = body.decode()

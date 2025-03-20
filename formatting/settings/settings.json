@@ -1,7 +1,7 @@
 {
   "model_path": "Qwen/Qwen2.5-1.5B-Instruct",
   "file_path": "",
-  "output": "",
+  "output": "output",
   "dir_path": "",
   "chunk_size": 8192,
   "prompt_file": "prompts/prompt.json",

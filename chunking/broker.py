@@ -25,6 +25,10 @@ class BrokerAdapter:
         self.init = True
 
     def consume_messages(self, infer_callback):
+        if not self.pipeline_mode:
+            return
+        if not self.init_adapter:
+            raise Exception('Broker Adapter is not initialized')
         def consume_callback(ch, method, properties, body):
             try:
                 msg = body.decode()

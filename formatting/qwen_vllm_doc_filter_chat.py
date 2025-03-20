@@ -190,12 +190,15 @@ def main():
         adapter = BrokerAdapter(formatter_settings.pipeline_settings.broker_host,
                                 formatter_settings.pipeline_settings.broker_port,
                                 use_pipeline)
+        adapter.init_adapter()
         model, tokenizer = load_model(model_path)                              
-
+        print('Waiting for incoming messages...')
         def infer_callback(file_path: str):
-            refactor_doc(file_path, few_shot_prompt, output, model, tokenizer, chunk_size)
+            nonlocal adapter
             file_name = os.path.basename(file_path)
-            adapter.push_message(os.path.join(output, file_name))   # file is processed send it to chunker
+            refactor_doc(file_path, few_shot_prompt, os.path.join(output, file_name), model, tokenizer, chunk_size)
+            full_path = os.path.abspath(os.path.join(output, file_name))
+            adapter.push_message(full_path)   # file is processed send it to chunker
         adapter.consume_messages(infer_callback)
 
 

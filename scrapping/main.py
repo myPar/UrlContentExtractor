@@ -38,32 +38,29 @@ def parse_bool_str(arg:str):
 
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--base_url', type=str, required=True,
+    parser.add_argument('--base_url', type=str, default=crawler_settings.launch.base_url,
                         help='base url to start extracting content from')
-    parser.add_argument('--max_urls', type=int, required=False, default=50,
+    parser.add_argument('--max_urls', type=int, default=crawler_settings.launch.max_urls,
                         help='maximum count of urls to extract content from')
-    parser.add_argument('--depth', type=int, default=2, required=False,
+    parser.add_argument('--depth', type=int, default=crawler_settings.launch.depth,
                         help="maximum depth of passage through child url's")
-    parser.add_argument('--output', type=str, default='data/', required=False,
+    parser.add_argument('--output', type=str, default=crawler_settings.launch.output,
                         help='directory to store the generated documents')
-    parser.add_argument('--log', type=parse_bool_str, default=False,
+    parser.add_argument('--log', type=parse_bool_str, default=crawler_settings.launch.log,
                         help='enable logging or not')
     parser.add_argument('--exclude_dirs',
                         nargs="*",
-                        required=False,
-                        default=[],
+                        default=crawler_settings.exclude_dirs,
                         help="directories with files which was already been processed, "
                              "so urls corresponding to them are not been parsed")
     parser.add_argument('--ignored_domens',
                         nargs="*",
-                        required=False,
-                        default=[],
+                        default=crawler_settings.ignored_domens,
                         help='urls with containing this domens will be ignored, \
                         additionally to default ignored domens')
     parser.add_argument('--required_domens',
                         nargs="*",
-                        required=False,
-                        default=[],
+                        default=crawler_settings.required_domens,
                         help="urls without containing any of this domens will be ignored.")
     parser.add_argument('--use_pipeline', type=parse_bool_str, default=crawler_settings.pipeline_settings.use_pipeline,
                         help='weather to use pipeline mode with message broker or not')
@@ -74,7 +71,7 @@ async def main():
         print('Parse args exception: ' + repr(e), file=sys.stderr)
         parser.print_help()
         return
-    ignored_domens = set(crawler_settings.ignored_domens).union(set(args.ignored_domens))
+    ignored_domens = crawler_settings.ignored_domens
     required_domens = args.required_domens
     exclude_files = get_excluded_files(args.exclude_dirs)
     urls_extractor = UrlExtractor(settings=crawler_settings,

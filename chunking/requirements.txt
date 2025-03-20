@@ -1,1 +1,3 @@
 smart-chunker
+accelerate
+python-magic

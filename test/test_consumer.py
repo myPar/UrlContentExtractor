@@ -29,7 +29,7 @@ def main():
                 msg = body.decode()
                 print(f'recieved: {msg}')
                 ch.basic_ack(delivery_tag=method.delivery_tag)
-                result.append(json.loads(msg))
+                result.append(msg)
                 totally_consumed += 1
             except Exception as e:
                 totally_errors += 1

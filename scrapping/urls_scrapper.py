@@ -168,7 +168,8 @@ class UrlExtractor:
             return []
         format = task.url.split('.')[-1]
         out_file_name = create_url_file_name(task.url)
-        broker_task = BrokerTask(os.path.join(self._save_dir, out_file_name))    # create broker task
+        full_path = os.path.abspath(os.path.join(self._save_dir, out_file_name))
+        broker_task = BrokerTask(full_path)    # create broker task
 
         # extract doc file if necessary:
         if format in doc_formats:   # supported formats: pdf
@@ -187,7 +188,7 @@ class UrlExtractor:
 
                     # push task to broker if file was successfully saved:
                     if os.path.isfile(os.path.join(self._save_dir, out_file_name)) and out_file_name not in self.msg_cache:
-                        self.broker_adapter.push_message(message=broker_task.get_json())
+                        self.broker_adapter.push_message(message=broker_task.file_path)
                         self.msg_cache.add(out_file_name)
                 except DocContentExtractorException as e:
                     if self.log:
@@ -213,7 +214,7 @@ class UrlExtractor:
                 await self.save_extracted_text(extracted_text, task.url)
                 # push task to broker if file was saved:
                 if os.path.isfile(os.path.join(self._save_dir, out_file_name)) and out_file_name not in self.msg_cache:
-                    self.broker_adapter.push_message(message=broker_task.get_json())
+                    self.broker_adapter.push_message(message=broker_task.file_path) # TODO: later json should be passed
                     self.msg_cache.add(out_file_name)
             self.processed_urls_count += 1   # url was successfully processed
             if self.log:

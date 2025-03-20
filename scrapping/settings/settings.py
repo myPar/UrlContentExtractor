@@ -3,6 +3,12 @@ import pydantic_core
 import json
 from typing import List
 
+class LaunchSettings(BaseModel):
+    base_url: str
+    depth: int
+    max_urls: int
+    output: str
+    log: bool
 
 class UrlPolicy(BaseModel):
     only_urls: bool
@@ -25,6 +31,7 @@ class Settings(BaseModel):
     ignored_domens: List[str]
     pipeline_settings: PipelineSettings
     min_content_size: int
+    launch: LaunchSettings
 
 
 with open('settings/settings.json', encoding='utf-8') as f:

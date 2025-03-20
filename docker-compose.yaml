@@ -1,0 +1,46 @@
+services:
+  chunker:
+    build: ./chunking/
+    volumes:
+      - type: bind
+        source: ./chunking/
+        target: ./app/chunking
+      - type: bind
+        source: ~/.cache/huggingface
+        target: ./app/HF_HOME
+    depends_on:
+      - rabbit
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu] 
+  llm-formatter:
+    build: ./formatting/
+    volumes:
+      - type: bind
+        source: ./formatting/
+        target: ./app/formatting
+      - type: bind
+        source: ~/.cache/huggingface
+        target: ./app/HF_HOME 
+    container_name: llm_formatter
+    depends_on:
+      - chunker
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+  url-scrapper:
+    build: ./scrapping/
+    container_name: url_scrapper
+  rabbit:
+    container_name: rabbit
+    image: rabbitmq:latest
+    ports:
+      - 5672:5672

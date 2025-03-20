@@ -62,6 +62,13 @@ def chunk(file: str, output: str, chunker: SmartChunker, delimiter:str='\n'*4):
         f.write(result_data)
 
 
+def parse_bool_str(arg:str):
+    try:
+        return {'true': True, 'false': False}[arg.lower()]
+    except KeyError:
+        raise argparse.ArgumentTypeError(f'invalid bool literal: {arg}')
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', type=str, required=False, default=chunker_settings.model_path,
@@ -77,10 +84,10 @@ def main():
                         help="language of the text to process (available: 'ru', 'en')")
     parser.add_argument('--chunk_size', type=int, required=False, default=chunker_settings.chunk_size,
                         help='size of chunks to process')
-    parser.add_argument('--use_pipeline', type=bool, required=False, default=chunker_settings.pipeline_settings.use_pipeline,
+    parser.add_argument('--use_pipeline', type=parse_bool_str, required=False, default=chunker_settings.pipeline_settings.use_pipeline,
                         help='weather use pipeline mode with message broker or not') 
     parser.add_argument('--delimiter', type=str, required=False, default=chunker_settings.delimiter,
-                        help="delimiter between splited chunks (default: '\\n\\n\\n\\n')")
+                        help="delimiter between splitted chunks (default: '\\n\\n\\n\\n')")
     try:
         args = parser.parse_args()
         validate_args(args)
@@ -104,10 +111,12 @@ def main():
               )
     if args.use_pipeline:
         # use broker:
-        adapter = BrokerAdapter(chunker_settings.broker_host, 
-                                chunker_settings.broker_port, 
-                                chunker_settings.pipeline_settings.use_pipeline)
-        
+        adapter = BrokerAdapter(chunker_settings.pipeline_settings.broker_host, 
+                                chunker_settings.pipeline_settings.broker_port, 
+                                args.use_pipeline)
+        adapter.init_adapter()
+        print('Waiting incoming messages...')
+
         def infer_callback(file_path: str):
             file_name = os.path.basename(file_path)
 

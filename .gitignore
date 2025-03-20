@@ -44,3 +44,7 @@ credentials.json
 .vscode/
 *.sublime-project
 *.sublime-workspace
+
+/chunking/output/
+/scrapping/output/
+/formatting/output/

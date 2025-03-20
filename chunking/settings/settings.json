@@ -1,7 +1,7 @@
 {
     "model_path": "BAAI/bge-reranker-v2-m3",
     "file_path": "",
-    "output": "",
+    "output": "output",
     "dir_path": "",
     "lang": "ru",
     "chunk_size": 250,
